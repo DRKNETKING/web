@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hacker Cyber Command Center</title>
+
+<style>
+    body {
+        background: #000;
+        color: #0f0;
+        font-family: "Courier New", monospace;
+        margin: 0;
+        overflow-x: hidden;
+    }
+
+    /* MATRIX RAIN BACKGROUND */
+    canvas#matrix {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background: black;
+    }
+
+    /* NAVIGATION */
+    .nav {
+        display: flex;
+        gap: 20px;
+        background: rgba(0, 255, 0, 0.1);
+        padding: 15px;
+        border-bottom: 2px solid #0f0;
+        backdrop-filter: blur(4px);
+    }
+    .nav a {
+        color: #0f0;
+        text-decoration: none;
+        font-weight: bold;
+        padding: 8px 12px;
+        border: 1px solid #0f0;
+        border-radius: 6px;
+        transition: 0.2s;
+    }
+    .nav a:hover {
+        background: #0f0;
+        color: #000;
+        box-shadow: 0 0 15px #0f0;
+    }
+
+    /* SECTIONS */
+    section {
+        padding: 20px;
+        margin: 20px;
+        background: rgba(0, 255, 0, 0.05);
+        border: 1px solid #0f0;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0,255,0,0.3);
+    }
+
+    h2 {
+        margin-top: 0;
+        text-shadow: 0 0 10px #0f0;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 10px 15px;
+        color: black;
+        font-weight: bold;
+        background: #0f0;
+        border-radius: 6px;
+        text-decoration: none;
+        margin-top: 10px;
+        box-shadow: 0 0 10px #0f0;
+    }
+    .btn:hover {
+        background: #33ff33;
+        box-shadow: 0 0 20px #0f0;
+    }
+
+    /* TERMINAL */
+    #terminal-box {
+        background: black;
+        border: 1px solid #0f0;
+        padding: 15px;
+        height: 200px;
+        overflow-y: auto;
+        color: #0f0;
+        font-size: 14px;
+    }
+    #terminal-input {
+        width: 100%;
+        background: black;
+        border: 1px solid #0f0;
+        color: #0f0;
+        padding: 10px;
+        margin-top: 10px;
+        font-family: inherit;
+    }
+
+    /* DATA TABLE */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        color: #0f0;
+    }
+    table td, table th {
+        border: 1px solid #0f0;
+        padding: 8px;
+    }
+    table th {
+        background: rgba(0,255,0,0.2);
+    }
+</style>
+</head>
+
+<body>
+
+<canvas id="matrix"></canvas>
+
+<!-- NAVIGATION -->
+<div class="nav">
+    <a href="#dashboard">Dashboard</a>
+    <a href="#scan">System Scan</a>
+    <a href="#malware">Malware Analysis</a>
+    <a href="#network">Network Monitor</a>
+    <a href="#terminal">Terminal</a>
+    <a href="#logs">Security Logs</a>
+</div>
+
+<!-- DASHBOARD -->
+<section id="dashboard">
+    <h2>🟢 Hacker Dashboard</h2>
+    <p>Status Sistem: <b style="color:#0f0;">ONLINE</b></p>
+    <p>Threat Level: <b style="color:#ff0;">MEDIUM</b></p>
+    <a class="btn" onclick="alert('System refreshed!')">Refresh Status</a>
+</section>
+
+<!-- SYSTEM SCAN -->
+<section id="scan">
+    <h2>🧪 System Vulnerability Scan</h2>
+    <p>Scan seluruh sistem untuk mencari celah keamanan.</p>
+    <a class="btn" onclick="runScan()">Mulai Scan</a>
+    <p id="scanStatus"></p>
+</section>
+
+<!-- MALWARE ANALYSIS -->
+<section id="malware">
+    <h2>🕷 Malware Analysis</h2>
+    <p>Upload file untuk analisa malware.</p>
+    <input type="file" id="fileUpload">
+    <a class="btn" onclick="analyzeMalware()">Analyze File</a>
+    <p id="malwareResult"></p>
+</section>
+
+<!-- NETWORK MONITOR -->
+<section id="network">
+    <h2>🌐 Network Monitor</h2>
+    <p>Pantau aktivitas jaringan.</p>
+    <table>
+        <tr>
+            <th>IP Address</th>
+            <th>Status</th>
+        </tr>
+        <tr>
+            <td>192.168.1.10</td>
+            <td>🔵 Active</td>
+        </tr>
+        <tr>
+            <td>192.168.1.22</td>
+            <td>🟡 Suspicious</td>
+        </tr>
+    </table>
+</section>
+
+<!-- TERMINAL -->
+<section id="terminal">
+    <h2>💻 Hacker Terminal</h2>
+    <div id="terminal-box">[System] Terminal Ready...</div>
+    <input id="terminal-input" placeholder="Type a command (ex: scan, help)" onkeydown="runCommand(event)">
+</section>
+
+<!-- LOGS -->
+<section id="logs">
+    <h2>📁 Security Logs</h2>
+    <ul id="logsList">
+        <li>[12:01] Login success from 192.168.1.5</li>
+        <li>[12:05] Scan initiated</li>
+    </ul>
+</section>
+
+<!-- JS FUNCTIONS -->
+<script>
+/* MATRIX RAIN EFFECT */
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
+
+canvas.height = window.innerHeight;
+canvas.width = window.innerWidth;
+
+const letters = "01";
+const fontSize = 16;
+const columns = canvas.width / fontSize;
+let drops = [];
+
+for (let i = 0; i < columns; i++) drops[i] = 1;
+
+function drawMatrix() {
+    ctx.fillStyle = "rgba(0,0,0,0.05)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#0f0";
+    ctx.font = fontSize + "px monospace";
+
+    for (let i = 0; i < drops.length; i++) {
+        let text = letters[Math.floor(Math.random() * letters.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.95)
+            drops[i] = 0;
+
+        drops[i]++;
+    }
+}
+setInterval(drawMatrix, 35);
+
+/* SYSTEM SCAN */
+function runScan() {
+    document.getElementById("scanStatus").innerHTML = "Scanning...";
+    setTimeout(() => {
+        document.getElementById("scanStatus").innerHTML = "Scan Complete: 2 threats detected!";
+    }, 2000);
+}
+
+/* MALWARE ANALYSIS */
+function analyzeMalware() {
+    const file = document.getElementById("fileUpload").value;
+    if (!file) {
+        alert("Upload file dulu!");
+        return;
+    }
+    document.getElementById("malwareResult").innerHTML = "Analyzing file...";
+    setTimeout(() => {
+        document.getElementById("malwareResult").innerHTML = "Result: File is SAFE ✔";
+    }, 2000);
+}
+
+/* TERMINAL COMMANDS */
+function runCommand(e) {
+    if (e.key === "Enter") {
+        const input = document.getElementById("terminal-input").value;
+        const box = document.getElementById("terminal-box");
+
+        box.innerHTML += "<br>> " + input;
+
+        if (input === "help")
+            box.innerHTML += "<br>Commands: scan, clear, help";
+        if (input === "scan")
+            box.innerHTML += "<br>Running quick scan... OK ✔";
+        if (input === "clear")
+            box.innerHTML = "";
+
+        document.getElementById("terminal-input").value = "";
+        box.scrollTop = box.scrollHeight;
+    }
+}
+</script>
+
+</body>
+</html>
