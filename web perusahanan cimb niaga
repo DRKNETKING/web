@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIMB Niaga — Web App</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+    }
+
+    /* Navbar */
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #d80024;
+        padding: 15px 30px;
+        color: #fff;
+    }
+
+    .navbar h1 {
+        font-size: 22px;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    .menu a {
+        margin-left: 20px;
+        color: #fff;
+        text-decoration: none;
+        font-size: 15px;
+    }
+
+    .menu a:hover {
+        text-decoration: underline;
+    }
+
+    /* Slider */
+    .slider {
+        width: 100%;
+        height: 280px;
+        background: #ccc;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .slide {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: none;
+        background-size: cover;
+        background-position: center;
+    }
+
+    .slide.active {
+        display: block;
+    }
+
+    /* Section */
+    .section {
+        padding: 30px;
+    }
+
+    .section h2 {
+        text-align: center;
+        color: #d80024;
+        margin-bottom: 20px;
+    }
+
+    /* Cards */
+    .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
+    }
+
+    .card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .card h3 {
+        color: #d80024;
+    }
+
+    .card p {
+        font-size: 14px;
+    }
+
+    .card button {
+        background: #d80024;
+        border: none;
+        padding: 10px 15px;
+        color: #fff;
+        border-radius: 5px;
+        margin-top: 10px;
+        cursor: pointer;
+    }
+
+    .card button:hover {
+        background: #a6001c;
+    }
+
+    /* Footer */
+    .footer {
+        background: #d80024;
+        padding: 20px;
+        text-align: center;
+        color: white;
+        margin-top: 40px;
+    }
+
+    /* Mobile menu */
+    @media (max-width: 768px) {
+        .menu {
+            display: none;
+            flex-direction: column;
+            background: #b40020;
+            padding: 15px;
+        }
+        .menu.show {
+            display: flex;
+        }
+        .menu-btn {
+            font-size: 22px;
+            cursor: pointer;
+        }
+    }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <h1>CIMB Niaga</h1>
+    <span class="menu-btn" onclick="toggleMenu()">☰</span>
+    <div class="menu" id="menu">
+        <a href="#beranda">Beranda</a>
+        <a href="#produk">Produk Bank</a>
+        <a href="#kredit">Kartu Kredit</a>
+        <a href="#pinjaman">Pinjaman</a>
+        <a href="#digital">Digital Banking</a>
+        <a href="#tentang">Tentang</a>
+        <a href="#kontak">Hubungi Kami</a>
+    </div>
+</div>
+
+<!-- SLIDER -->
+<div class="slider">
+    <div class="slide active" style="background-image:url('https://www.cimbniaga.co.id/content/dam/cimb/indonesia/homepage/slider1.jpg');"></div>
+    <div class="slide" style="background-image:url('https://www.cimbniaga.co.id/content/dam/cimb/indonesia/homepage/slider2.jpg');"></div>
+    <div class="slide" style="background-image:url('https://www.cimbniaga.co.id/content/dam/cimb/indonesia/homepage/slider3.jpg');"></div>
+</div>
+
+<!-- PRODUK -->
+<div class="section" id="produk">
+    <h2>Produk Perbankan</h2>
+    <div class="cards">
+        <div class="card">
+            <h3>Tabungan</h3>
+            <p>Solusi tabungan mudah dengan berbagai manfaat menarik.</p>
+            <button onclick="alert('Tabungan CIMB Niaga Dipilih!')">Lihat Detail</button>
+        </div>
+
+        <div class="card">
+            <h3>Deposito</h3>
+            <p>Bunga kompetitif dan jangka waktu fleksibel.</p>
+            <button onclick="alert('Deposito CIMB Niaga Dipilih!')">Lihat Detail</button>
+        </div>
+
+        <div class="card">
+            <h3>Rekening Ponsel</h3>
+            <p>Transfer tanpa rekening bank, cukup nomor HP!</p>
+            <button onclick="alert('Rekening Ponsel Dipilih!')">Lihat Detail</button>
+        </div>
+    </div>
+</div>
+
+<!-- KARTU KREDIT -->
+<div class="section" id="kredit">
+    <h2>Kartu Kredit CIMB Niaga</h2>
+    <div class="cards">
+        <div class="card">
+            <h3>Wave n Go</h3>
+            <p>Kartu praktis cukup tempel untuk transaksi.</p>
+            <button>Ajukan Sekarang</button>
+        </div>
+        <div class="card">
+            <h3>Syariah Card</h3>
+            <p>Pilihan kartu kredit berbasis syariah.</p>
+            <button>Ajukan Sekarang</button>
+        </div>
+    </div>
+</div>
+
+<!-- PINJAMAN -->
+<div class="section" id="pinjaman">
+    <h2>Pinjaman</h2>
+    <div class="cards">
+        <div class="card">
+            <h3>KPR</h3>
+            <p>Bunga rendah dan cicilan ringan.</p>
+            <button>Ajukan</button>
+        </div>
+
+        <div class="card">
+            <h3>Kredit Multiguna</h3>
+            <p>Cair cepat, tenor fleksibel.</p>
+            <button>Ajukan</button>
+        </div>
+    </div>
+</div>
+
+<!-- DIGITAL BANKING -->
+<div class="section" id="digital">
+    <h2>Digital Banking</h2>
+    <div class="cards">
+        <div class="card">
+            <h3>OCTO Mobile</h3>
+            <p>Mobile banking dengan fitur terlengkap.</p>
+            <button>Download</button>
+        </div>
+
+        <div class="card">
+            <h3>OCTO Clicks</h3>
+            <p>Internet banking untuk transaksi mudah.</p>
+            <button>Buka Website</button>
+        </div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    © 2025 CIMB Niaga — Web App Demo by ChatGPT
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+
+    function showSlide() {
+        slides.forEach(slide => slide.classList.remove('active'));
+        slides[currentSlide].classList.add('active');
+        currentSlide = (currentSlide + 1) % slides.length;
+    }
+    setInterval(showSlide, 3000);
+
+    function toggleMenu() {
+        document.getElementById("menu").classList.toggle("show");
+    }
+</script>
+
+</body>
+</html>
