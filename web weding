@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Wedding — Undangan Online</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--accent:#9b6fb3;--accent2:#f6c1d8;--muted:#6b7280}
+    *{box-sizing:border-box}
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;line-height:1.5;margin:0;color:#111;background:#fff}
+    .container{max-width:1100px;margin:0 auto;padding:28px}
+
+    /* Hero */
+    .hero{display:grid;grid-template-columns:1fr;gap:28px;align-items:center;padding:40px 20px;border-radius:12px;overflow:hidden;position:relative}
+    .hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg, rgba(15,23,42,0.18), rgba(255,255,255,0.02));pointer-events:none}
+    .hero-grid{display:flex;gap:28px;align-items:center}
+    .hero-img{flex:0 0 48%;border-radius:12px;overflow:hidden;min-height:280px}
+    .hero-img img{width:100%;height:100%;object-fit:cover;display:block}
+    .hero-copy{flex:1}
+    h1{font-family:'Playfair Display',serif;font-size:36px;margin:0 0 8px;color:var(--accent)}
+    p.lead{margin:0 0 18px;color:var(--muted)}
+    .btn{display:inline-block;background:var(--accent);color:#fff;padding:10px 18px;border-radius:10px;text-decoration:none;font-weight:600}
+
+    /* Details */
+    .details{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:20px}
+    .card{background:#fff;border:1px solid #eee;padding:16px;border-radius:10px;text-align:center}
+    .card h3{margin:0 0 6px;font-size:16px}
+    .card p{margin:0;color:var(--muted)}
+
+    /* RSVP */
+    .rsvp{margin-top:36px;background:linear-gradient(180deg,#fff,#fbfbff);padding:18px;border-radius:12px;border:1px solid #f0eef8}
+    .rsvp form{display:flex;flex-wrap:wrap;gap:12px}
+    .field{flex:1 1 200px}
+    input[type=text],input[type=email],textarea,select{width:100%;padding:10px;border-radius:8px;border:1px solid #e6e6e6;font-size:14px}
+    textarea{min-height:100px}
+    .actions{display:flex;gap:12px;align-items:center;margin-top:8px}
+
+    /* Gallery */
+    .gallery{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px}
+    .gallery img{width:100%;height:130px;object-fit:cover;border-radius:8px;cursor:pointer}
+
+    /* Footer */
+    footer{margin:40px 0 18px;text-align:center;color:var(--muted)}
+
+    /* Floating WA */
+    .wa{position:fixed;right:18px;bottom:18px;background:#25D366;color:#fff;border-radius:50%;width:56px;height:56px;display:flex;align-items:center;justify-content:center;font-weight:700;box-shadow:0 10px 30px rgba(37,211,102,0.18);text-decoration:none}
+
+    /* responsive */
+    @media (max-width:900px){
+      .hero-grid{flex-direction:column}
+      .hero-img{width:100%}
+      .details{grid-template-columns:repeat(2,1fr)}
+      .gallery{grid-template-columns:repeat(2,1fr)}
+    }
+    @media (max-width:520px){
+      h1{font-size:28px}
+      .details{grid-template-columns:1fr}
+      .rsvp form{flex-direction:column}
+    }
+
+    /* Simple lightbox */
+    .lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;visibility:hidden;opacity:0;transition:opacity .2s}
+    .lightbox img{max-width:90%;max-height:80%;border-radius:8px}
+    .lightbox.show{visibility:visible;opacity:1}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header style="text-align:center;margin-bottom:18px">
+      <small style="color:var(--muted);display:block">You're invited</small>
+      <h1 style="margin-top:6px">The Wedding of A &amp; B</h1>
+      <p class="lead">Join us to celebrate our special day with family, friends, music and heartfelt moments.</p>
+    </header>
+
+    <section class="hero" aria-label="Hero wedding">
+      <div class="hero-grid">
+        <div class="hero-img">
+          <!-- local uploaded screenshot used as hero image -->
+          <img src="/mnt/data/Screenshot (8).png" alt="couple hero image">
+        </div>
+        <div class="hero-copy">
+          <h2 style="font-family:Playfair Display, serif;margin-top:0;color:#7a3b91">Save the Date</h2>
+          <p class="lead">Saturday, 20th December 2025 — Grand Ballroom, Hotel Riverside</p>
+          <a class="btn" href="#rsvp">RSVP Now</a>
+
+          <div class="details">
+            <div class="card">
+              <h3>Ceremony</h3>
+              <p>10:00 AM — Main Hall</p>
+            </div>
+            <div class="card">
+              <h3>Reception</h3>
+              <p>12:00 PM — Garden Terrace</p>
+            </div>
+            <div class="card">
+              <h3>Dress Code</h3>
+              <p>Elegant / Semi-formal</p>
+            </div>
+          </div>
+
+          <div style="margin-top:14px;color:var(--muted)">
+            <strong>Host:</strong> The Family of A &amp; B<br>
+            <strong>Notes:</strong> Parking available. Please arrive 30 minutes early.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="rsvp" class="rsvp">
+      <h3 style="margin:0 0 10px">RSVP &amp; Konfirmasi Kehadiran</h3>
+      <form id="rsvpForm" onsubmit="return submitRSVP(event)">
+        <div class="field"><input type="text" id="name" placeholder="Full name" required></div>
+        <div class="field"><input type="email" id="email" placeholder="Email" required></div>
+        <div class="field">
+          <select id="attend" required>
+            <option value="">Will you attend?</option>
+            <option value="yes">Yes, I will attend</option>
+            <option value="no">Sorry, can't make it</option>
+          </select>
+        </div>
+        <div class="field"><input type="text" id="guests" placeholder="Number of guests" inputmode="numeric"></div>
+        <div style="width:100%"><textarea id="note" placeholder="Message / dietary requirements (optional)"></textarea></div>
+        <div class="actions" style="width:100%">
+          <button class="btn" type="submit">Send RSVP</button>
+          <div style="color:var(--muted);font-size:14px">We will contact you by email with confirmation.</div>
+        </div>
+      </form>
+
+      <div style="margin-top:18px">
+        <h4 style="margin:0 0 8px">Gallery</h4>
+        <div class="gallery">
+          <img src="/mnt/data/Screenshot (8).png" alt="gallery1" onclick="openLightbox(this.src)">
+          <img src="/mnt/data/Screenshot (8).png" alt="gallery2" onclick="openLightbox(this.src)">
+          <img src="/mnt/data/Screenshot (8).png" alt="gallery3" onclick="openLightbox(this.src)">
+          <img src="/mnt/data/Screenshot (8).png" alt="gallery4" onclick="openLightbox(this.src)">
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p>&copy; 2025 The Wedding of A &amp; B — Built with ❤ for Odoo Local</p>
+    </footer>
+  </div>
+
+  <!-- lightbox -->
+  <div id="lightbox" class="lightbox" onclick="closeLightbox(event)"><img id="lbimg" src="" alt="preview"></div>
+
+  <!-- floating WhatsApp -->
+  <a class="wa" href="https://wa.me/628123456789?text=Halo%20saya%20ingin%20konfirmasi%20undangan" target="_blank" title="Chat WhatsApp">WA</a>
+
+  <script>
+    function submitRSVP(e){
+      e.preventDefault();
+      const data={name:document.getElementById('name').value.trim(),email:document.getElementById('email').value.trim(),attend:document.getElementById('attend').value,guests:document.getElementById('guests').value,note:document.getElementById('note').value};
+      if(!data.name||!data.email||!data.attend){alert('Please complete required fields');return false}
+      // Simpan ke localStorage (karena Odoo local - integrasi ke backend bisa ditambahkan di module)
+      const list=JSON.parse(localStorage.getItem('rsvps')||'[]');list.push(Object.assign({date:new Date().toISOString()},data));localStorage.setItem('rsvps',JSON.stringify(list));
+      alert('RSVP terkirim. Terima kasih!');
+      e.target.reset();
+      return false;
+    }
+    function openLightbox(src){document.getElementById('lbimg').src=src;document.getElementById('lightbox').classList.add('show')}
+    function closeLightbox(e){if(e.target.id==='lightbox'){document.getElementById('lightbox').classList.remove('show')}}
+  </script>
+</body>
+</html>
