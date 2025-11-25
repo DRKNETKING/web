@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Open Trip Booking — Final Version</title>
+<style>
+body{margin:0;font-family:Arial, sans-serif;background:#f0f3ff;color:#222}
+header{background:#003f7f;color:white;padding:60px 20px;text-align:center;font-size:40px;font-weight:700;background-image:url('https://picsum.photos/id/1018/1600/600');background-size:cover;background-position:center}
+.container{width:95%;max-width:1400px;margin:auto;padding:20px}
+.trip-card{background:white;padding:20px;border-radius:18px;margin-bottom:25px;box-shadow:0 4px 20px rgba(0,0,0,0.15);display:flex;gap:20px}
+.trip-card img{width:360px;height:240px;border-radius:18px;object-fit:cover}
+.trip-info{flex:1}
+.btn{background:#0057d8;color:white;padding:12px 20px;border:none;border-radius:10px;font-size:16px;cursor:pointer}
+.btn:hover{background:#003c99}
+#popup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:none;justify-content:center;align-items:center}
+.popup-box{background:white;padding:25px;border-radius:16px;width:90%;max-width:450px}
+input,select{width:100%;padding:12px;margin-top:10px;border-radius:10px;border:1px solid #ccc}
+</style>
+</head>
+<body>
+<header>OPEN TRIP INDONESIA</header>
+
+<div class="container">
+
+<h2>Daftar Trip Terbaru</h2>
+
+<div id="trip-list"></div>
+
+</div>
+
+<div id="popup">
+ <div class="popup-box">
+   <h3>Booking Trip</h3>
+   <p id="tripName"></p>
+   <input type="text" id="nama" placeholder="Nama Lengkap">
+   <input type="number" id="jumlah" placeholder="Jumlah Peserta">
+   <select id="pembayaran">
+     <option>Transfer Bank</option>
+     <option>QRIS</option>
+     <option>Dana / OVO</option>
+   </select>
+   <button class="btn" onclick="kirimBooking()">Kirim</button>
+   <button class="btn" style="background:#777" onclick="tutupPopup()">Tutup</button>
+ </div>
+</div>
+
+<script>
+const trips=[
+ {nama:"Open Trip Bali 3D2N", harga:1500000, img:"https://picsum.photos/id/1015/600/400"},
+ {nama:"Open Trip Labuan Bajo", harga:3500000, img:"https://picsum.photos/id/1024/600/400"},
+ {nama:"Open Trip Bromo Sunrise", harga:550000, img:"https://picsum.photos/id/1005/600/400"},
+ {nama:"Open Trip Raja Ampat", harga:7500000, img:"https://picsum.photos/id/1039/600/400"},
+ {nama:"Open Trip Karimunjawa", harga:1200000, img:"https://picsum.photos/id/1043/600/400"}
+];
+
+function renderTrips(){
+ let html="";
+ trips.forEach((t,i)=>{
+ html+=`
+ <div class='trip-card'>
+   <img src='${t.img}'>
+   <div class='trip-info'>
+     <h3>${t.nama}</h3>
+     <p>Harga: Rp ${t.harga.toLocaleString()}</p>
+     <button class='btn' onclick="bukaPopup(${i})">Booking</button>
+   </div>
+ </div>`;
+ });
+ document.getElementById('trip-list').innerHTML=html;
+}
+renderTrips();
+
+let tripDipilih="";
+function bukaPopup(i){
+ tripDipilih=trips[i].nama;
+ document.getElementById('tripName').innerText=tripDipilih;
+ document.getElementById('popup').style.display='flex';
+}
+function tutupPopup(){document.getElementById('popup').style.display='none'}
+function kirimBooking(){
+ let nama=document.getElementById('nama').value;
+ let jumlah=document.getElementById('jumlah').value;
+ let bayar=document.getElementById('pembayaran').value;
+ if(!nama||!jumlah)return alert('Lengkapi data!');
+ alert(`Booking terkirim!\nNama: ${nama}\nTrip: ${tripDipilih}\nJumlah: ${jumlah}\nPembayaran: ${bayar}`);
+ tutupPopup();
+}
+</script>
+
+</body>
+</html>
