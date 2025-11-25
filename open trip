@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Open Trip — Demo Booking System</title>
+  <meta name="description" content="Demo single-file Travel & Booking page (Open Trip) — paste ke WordPress (Custom HTML block) untuk preview." />
+  <style>
+    :root{ --accent:#0b6efd; --muted:#6b7280; --bg:#f6f8fb; --card:#fff}
+    *{box-sizing:border-box}
+    body{font-family:Arial, Helvetica, sans-serif;margin:0;background:linear-gradient(180deg,#f6f8fb,#eef3fb);color:#0f1724}
+    header{background:linear-gradient(90deg,var(--accent),#6a8cff);color:white;padding:24px 18px;text-align:center}
+    header h1{margin:0;font-size:20px}
+    .wrap{max-width:1100px;margin:22px auto;padding:16px}
+    .grid{display:grid;grid-template-columns:320px 1fr;gap:18px}
+    .card{background:var(--card);border-radius:10px;padding:14px;box-shadow:0 6px 18px rgba(17,24,39,0.06)}
+    .search{display:flex;gap:8px}
+    input, select, button, textarea{font-family:inherit}
+    .filters h3{margin-top:0}
+    .filter-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+    .trip-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+    .trip{border-radius:10px;overflow:hidden;background:linear-gradient(180deg,#fff,#fbfdff);cursor:pointer;transition:transform .18s,box-shadow .18s}
+    .trip:hover{transform:translateY(-6px);box-shadow:0 12px 30px rgba(11,110,253,0.10)}
+    .trip img{width:100%;height:150px;object-fit:cover;display:block}
+    .trip .body{padding:10px}
+    .trip h4{margin:0 0 6px 0;font-size:15px}
+    .meta{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted)}
+    .details{min-height:420px}
+    .gallery{display:flex;gap:8px;margin:8px 0;flex-wrap:wrap}
+    .gallery img{width:160px;height:100px;object-fit:cover;border-radius:8px}
+    .it-day{background:#f8fafc;padding:10px;border-radius:8px;margin-bottom:8px}
+    .booking{border-left:1px dashed #e6eefc;padding-left:14px}
+    .booking h3{margin-top:0}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+    .btn{background:var(--accent);color:white;border:0;padding:9px 12px;border-radius:8px;cursor:pointer}
+    .cart{position:fixed;right:18px;bottom:18px;background:linear-gradient(90deg,#fff,#f7fbff);padding:12px;border-radius:12px;box-shadow:0 10px 30px rgba(12,24,64,0.12);max-width:320px}
+    .badge{background:#f1f5f9;color:#0f1724;padding:6px 8px;border-radius:999px;font-weight:600}
+    .muted{color:var(--muted)}
+    @media (max-width:900px){.grid{grid-template-columns:1fr}.booking{border-left:none;padding-left:0;margin-top:12px}.cart{right:10px;left:10px}}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Open Trip — Demo Booking System</h1>
+    <div style="font-size:13px;opacity:.9;margin-top:6px">Klik satu trip untuk lihat detail, pilih tanggal & pesan (mock payment).</div>
+  </header>
+
+  <main class="wrap" id="appRoot">
+    <div class="grid">
+      <aside class="card filters" aria-label="Filter & Search">
+        <div style="margin-bottom:12px">
+          <div class="search">
+            <input id="q" type="search" placeholder="Cari trip (kata kunci, destinasi)" style="flex:1;padding:10px;border-radius:8px;border:1px solid #e6eefc" />
+            <button class="btn" id="searchBtn">Cari</button>
+          </div>
+        </div>
+
+        <h3>Filter Lanjutan</h3>
+        <div class="filter-row">
+          <label style="flex:1">Destinasi
+            <select id="filterDest" style="width:100%;padding:8px;border-radius:8px;border:1px solid #eef3ff"><option value="">Semua</option></select>
+          </label>
+        </div>
+        <div class="filter-row">
+          <label style="flex:1">Durasi
+            <select id="filterDur" style="width:100%;padding:8px;border-radius:8px;border:1px solid #eef3ff">
+              <option value="">Semua</option><option value="1">1 hari</option><option value="2-3">2-3 hari</option><option value="4+">4+ hari</option>
+            </select>
+          </label>
+        </div>
+        <div class="filter-row">
+          <label style="flex:1">Adventure
+            <select id="filterAdv" style="width:100%;padding:8px;border-radius:8px;border:1px solid #eef3ff"><option value="">Semua</option><option value="easy">Mudah</option><option value="moderate">Sedang</option><option value="hard">Sulit</option></select>
+          </label>
+        </div>
+        <div class="filter-row">
+          <label style="flex:1">Harga max (IDR)
+            <input id="filterPrice" type="number" placeholder="e.g. 2000000" style="width:100%;padding:8px;border-radius:8px;border:1px solid #eef3ff"/>
+          </label>
+        </div>
+        <div style="margin-top:8px;display:flex;gap:8px"><button id="clearFilters" class="btn" style="background:#475569">Reset</button><button id="applyFilters" class="btn">Terapkan</button></div>
+
+        <hr style="margin:12px 0;border:none;border-top:1px solid #eef3ff" />
+        <div class="muted" style="font-size:13px">Peta & info ringkas</div>
+        <div style="margin-top:10px;font-size:13px;color:var(--muted)">Integrasi Google Maps pada detail trip — tambahkan API key Anda saat produksi.</div>
+      </aside>
+
+      <section>
+        <div class="card" style="margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h2 style="margin:0">Daftar Open Trip</h2>
+            <div class="muted">Klik trip untuk melihat detail & booking</div>
+          </div>
+          <div style="margin-top:12px" id="tripContainer" class="trip-list" aria-live="polite"></div>
+        </div>
+
+        <div class="card details" id="detailsPane">
+          <h3 id="detailTitle">Pilih trip untuk melihat detail</h3>
+          <div id="detailContent" class="muted">Detail trip akan muncul di sini.</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="card cart" id="cart">
+    <div style="display:flex;gap:10px;align-items:center"><strong>Keranjang</strong><span id="cartCount" class="badge">0</span></div>
+    <div id="cartList" style="margin-top:8px;font-size:14px;color:var(--muted)">Belum ada pemesanan</div>
+    <div style="margin-top:10px;display:flex;gap:8px">
+      <button id="goCheckout" class="btn">Checkout</button>
+      <button id="emptyCart" style="background:#ef4444;color:white;border:none;padding:8px;border-radius:8px;cursor:pointer">Kosongkan</button>
+    </div>
+  </div>
+
+  <!-- IMPORTANT: If WordPress strips <script> tags, use the Code Editor or upload this file to your host and embed via iframe. -->
+  <script>
+    (function(){
+      const TRIPS = [
+        { id:'trip-001', title:'Open Trip Pulau Seribu — 2D/1N', dest:'Jakarta', price:550000, duration:'2', adv:'easy', slots:[{date:'2025-12-04',left:8},{date:'2025-12-11',left:12}], imgs:['https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=60'], itinerary:["Hari 1: Berangkat & island hopping","Hari 2: Pulang ke Jakarta"], faq:['Bawa baju ganti','Tidak cocok untuk yang memiliki penyakit jantung']},
+        { id:'trip-002', title:'Gunung Bromo Sunrise Trek — 2D/1N', dest:'Probolinggo', price:850000, duration:'2', adv:'moderate', slots:[{date:'2025-12-06',left:5}], imgs:['https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=60'], itinerary:["Sore: Trekking ringan","Pagi: Sunrise viewpoint"], faq:['Bawa jaket tebal','Pakai sepatu trekking']},
+        { id:'trip-003', title:'Trekking Dieng & Telaga Warna — 3D/2N', dest:'Dieng', price:1200000, duration:'3', adv:'hard', slots:[{date:'2025-12-20',left:10}], imgs:['https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=800&q=60'], itinerary:["Hari 1: Berangkat ke Dieng","Hari 2: Telaga Warna & wisata","Hari 3: Kembali"], faq:['Gunakan sunscreen','Siap fisik']}
+      ];
+
+      const state = {trips:TRIPS, selected:null, cart:[]};
+
+      function renderTrips(list){
+        const container = document.getElementById('tripContainer'); container.innerHTML='';
+        list.forEach(t=>{
+          const el = document.createElement('article'); el.className='trip'; el.tabIndex=0;
+          el.innerHTML = '<img src="'+t.imgs[0]+'" alt="'+t.title+'"/><div class="body"><h4>'+t.title+'</h4><div class="meta"><div>'+t.dest+' · '+t.duration+' hari</div><div class="badge">Rp '+t.price.toLocaleString()+'</div></div></div>';
+          el.addEventListener('click',()=>openDetail(t.id));
+          el.addEventListener('keypress', e=>{ if(e.key==='Enter') openDetail(t.id)});
+          container.appendChild(el);
+        });
+      }
+
+      function populateFilters(){
+        const dests = [...new Set(state.trips.map(t=>t.dest))];
+        const sel = document.getElementById('filterDest');
+        dests.forEach(d=>{ const o = document.createElement('option'); o.value=d; o.textContent=d; sel.appendChild(o) });
+      }
+
+      function openDetail(id){
+        const trip = state.trips.find(x=>x.id===id); state.selected=trip;
+        const pane = document.getElementById('detailsPane');
+        const datesOptions = trip.slots.map(s=>'<option value="'+s.date+'">'+s.date+' ('+s.left+' slot)</option>').join('');
+        pane.innerHTML = '<h3>'+trip.title+' <small class="muted"> — '+trip.dest+'</small></h3>'+
+          '<div style="display:flex;gap:14px;flex-wrap:wrap">'+
+            '<div style="flex:1;min-width:260px">'+
+              '<div class="gallery">'+trip.imgs.map(u=>'<img src="'+u+'" loading="lazy">').join('')+'</div>'+
+              '<div class="muted">Harga: <strong>Rp '+trip.price.toLocaleString()+'</strong></div>'+
+              '<div class="itinerary"><h4>Itinerary</h4>'+trip.itinerary.map((it,i)=>'<div class="it-day"><strong>Hari '+(i+1)+':</strong> '+it+'</div>').join('')+'</div>'+
+              '<div style="margin-top:8px"><h4>FAQ & Ketentuan</h4><ul>'+trip.faq.map(x=>'<li>'+x+'</li>').join('')+'</ul></div>'+
+            '</div>'+
+            '<div style="width:320px" class="booking card">'+
+              '<h3>Form Pemesanan</h3><div style="font-size:13px;color:var(--muted)">Pilih tanggal & jumlah peserta</div>'+
+              '<div style="margin-top:10px"><label>Tanggal tersedia<select id="bookDate" style="width:100%;padding:8px;border-radius:8px;border:1px solid #eef3ff">'+datesOptions+'</select></label></div>'+
+              '<div style="margin-top:8px"><label>Jumlah peserta<input id="bookQty" type="number" min="1" value="1" style="width:100%;padding:8px;border-radius:8px;border:1px solid #eef3ff"/></label></div>'+
+              '<div style="margin-top:8px"><label>Nama pemesan<input id="bookName" type="text" placeholder="Nama lengkap" style="width:100%;padding:8px;border-radius:8px;border:1px solid #eef3ff"/></label></div>'+
+              '<div style="margin-top:8px"><label>No. HP<input id="bookPhone" type="tel" placeholder="0812xxxx" style="width:100%;padding:8px;border-radius:8px;border:1px solid #eef3ff"/></label></div>'+
+              '<div style="margin-top:8px"><label>Opsi Pembayaran<select id="payOpt" style="width:100%;padding:8px;border-radius:8px;border:1px solid #eef3ff"><option value="full">Bayar Penuh</option><option value="deposit">Bayar Deposit (30%)</option></select></label></div>'+
+              '<div style="margin-top:10px;display:flex;gap:8px"><button id="addCartBtn" class="btn">Tambah ke Keranjang</button><button id="bookNowBtn" class="btn" style="background:#06b6d4">Pesan Langsung</button></div>'+
+              '<div style="margin-top:8px;font-size:13px;color:var(--muted)">Metode (mock): Transfer bank, e-wallet, kartu kredit. Integrasikan Midtrans/Xendit di produksi.</div>'+
+            '</div>'+
+          '</div>';
+        // attach buttons
+        setTimeout(()=>{ const a = document.getElementById('addCartBtn'); if(a) a.addEventListener('click', ()=>addToCart(trip.id)); const b = document.getElementById('bookNowBtn'); if(b) b.addEventListener('click', ()=>checkoutNow(trip.id)); },50);
+      }
+
+      function addToCart(tripId){
+        const trip = state.trips.find(t=>t.id===tripId);
+        const date = (document.getElementById('bookDate')||{}).value; const qty = Number((document.getElementById('bookQty')||{}).value) || 1;
+        if(!date){ alert('Pilih tanggal terlebih dahulu'); return; }
+        const slot = trip.slots.find(s=>s.date===date);
+        if(!slot || slot.left < qty){ alert('Slot tidak cukup'); return; }
+        const payOpt = (document.getElementById('payOpt')||{}).value || 'full';
+        const priceTotal = trip.price * qty; const deposit = payOpt==='deposit' ? Math.ceil(priceTotal*0.3) : priceTotal;
+        const item = { id:Date.now().toString(), tripId:trip.id, title:trip.title, date, qty, pricePer:trip.price, total:priceTotal, payOpt, payNow:deposit, name:(document.getElementById('bookName')||{}).value||'Anonim' };
+        state.cart.push(item); updateCart(); alert('Berhasil ditambahkan ke keranjang');
+      }
+
+      function checkoutNow(tripId){
+        addToCart(tripId); openCheckout();
+      }
+
+      function updateCart(){
+        const count = state.cart.length; document.getElementById('cartCount').textContent = count;
+        const list = document.getElementById('cartList');
+        if(count===0){ list.textContent='Belum ada pemesanan'; return; }
+        list.innerHTML = state.cart.map(it=>'<div style="margin-bottom:6px"><strong>'+it.title+'</strong><div class="muted">'+it.date+' · '+it.qty+' orang · Rp '+it.total.toLocaleString()+' · Bayar sekarang: Rp '+it.payNow.toLocaleString()+'</div></div>').join('');
+      }
+
+      function openCheckout(){
+        if(state.cart.length===0){ alert('Keranjang kosong'); return; }
+        const totalPayNow = state.cart.reduce((s,i)=>s+i.payNow,0);
+        const confirmPay = confirm('Total yang harus dibayar sekarang: Rp '+totalPayNow.toLocaleString()+'. Lanjutkan ke pembayaran mock?');
+        if(!confirmPay) return;
+        setTimeout(()=>{ alert('Pembayaran berhasil (mock). Terima kasih!'); state.cart.forEach(item=>{ const trip = state.trips.find(t=>t.id===item.tripId); const slot = trip.slots.find(s=>s.date===item.date); if(slot) slot.left -= item.qty; }); state.cart = []; updateCart(); renderTrips(state.trips); },600);
+      }
+
+      function applyFilters(){
+        const q = (document.getElementById('q')||{}).value || '';
+        const dest = (document.getElementById('filterDest')||{}).value || '';
+        const dur = (document.getElementById('filterDur')||{}).value || '';
+        const adv = (document.getElementById('filterAdv')||{}).value || '';
+        const priceMax = Number((document.getElementById('filterPrice')||{}).value) || Infinity;
+        const results = state.trips.filter(t=> (t.title.toLowerCase().includes(q.toLowerCase()) || t.dest.toLowerCase().includes(q.toLowerCase())) && (dest? t.dest===dest:true) && (dur? (dur==='4+'? Number(t.duration)>=4 : (dur.includes('-')? (Number(t.duration)>=2 && Number(t.duration)<=3) : Number(t.duration)===Number(dur))):true) && (adv? t.adv===adv:true) && (t.price<=priceMax) );
+        renderTrips(results);
+      }
+
+      // init
+      document.addEventListener('DOMContentLoaded',()=>{
+        renderTrips(state.trips); populateFilters(); updateCart();
+        document.getElementById('applyFilters').addEventListener('click', applyFilters);
+        document.getElementById('searchBtn').addEventListener('click', applyFilters);
+        document.getElementById('clearFilters').addEventListener('click', ()=>{ document.getElementById('q').value=''; document.getElementById('filterDest').value=''; document.getElementById('filterDur').value=''; document.getElementById('filterAdv').value=''; document.getElementById('filterPrice').value=''; renderTrips(state.trips); });
+        document.getElementById('goCheckout').addEventListener('click', openCheckout);
+        document.getElementById('emptyCart').addEventListener('click', ()=>{ state.cart=[]; updateCart(); });
+      });
+    })();
+  </script>
+
+  <!-- Production notes:
+       - WordPress may sanitize/remove <script> tags in some setups (security plugins, theme sanitizers).
+       - If scripts are removed and page displays raw HTML: paste into "Custom HTML" block or use "Code editor".
+       - As fallback: upload this file to your server and embed via iframe.
+       - For real payments: integrate Midtrans/Xendit server-side & replace mock checkout.
+  -->
+</body>
+</html>
