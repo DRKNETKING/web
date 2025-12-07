@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ChatGPT Local — Full (OpenAI)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0b0c; --panel:#0f1720; --muted:#9aa4ad; --accent:#6b46c1;
+  --card:#111319; --input:#14171a;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;font-family:Inter,system-ui,Arial;color:#e6eef5;background:linear-gradient(180deg,#071018,#0b0b0c);
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+}
+.app{display:flex;height:100vh;}
+
+/* Sidebar */
+.sidebar{width:300px;min-width:260px;background:linear-gradient(180deg,var(--panel),#0a0a0b);border-right:1px solid rgba(255,255,255,0.03);display:flex;flex-direction:column}
+.top{padding:16px;display:flex;align-items:center;gap:10px}
+.logo{width:40px;height:40;border-radius:8px;background:linear-gradient(135deg,var(--accent),#2d6cdf);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff}
+.controls{padding:12px}
+.btn{width:100%;background:transparent;border:1px solid rgba(255,255,255,0.04);padding:10px;border-radius:8px;color:#e6eef5;cursor:pointer}
+.search{margin-top:10px;display:flex;gap:8px}
+.search input{flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:#e6eef5}
+.nav{padding:10px;overflow:auto;flex:1}
+.chat-item{display:flex;gap:10px;align-items:center;padding:8px;border-radius:8px;cursor:pointer;color:#cfe8ff;margin-bottom:6px}
+.chat-item:hover{background:rgba(255,255,255,0.02)}
+.chat-item.active{background:linear-gradient(90deg,#162032,#0f1720);border-left:3px solid var(--accent);padding-left:5px}
+.chat-icon{width:36px;height:36;border-radius:6px;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;font-weight:600}
+.sidebar-footer{padding:12px;border-top:1px solid rgba(255,255,255,0.02);display:flex;align-items:center;gap:10px}
+
+/* Main */
+.main{flex:1;display:flex;flex-direction:column}
+.header{height:68px;display:flex;align-items:center;padding:12px 20px;border-bottom:1px solid rgba(255,255,255,0.02)}
+.header h1{margin:0;font-size:18px}
+.header .right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.workspace{display:flex;flex:1;overflow:hidden}
+.conversation{flex:1;display:flex;flex-direction:column;padding:20px;overflow:auto;background:linear-gradient(180deg,#0b0b0c,#050607)}
+.placeholder{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;color:var(--muted)}
+.big{font-size:26px;margin-bottom:12px}
+.search-box{width:640px;max-width:92%;display:flex;align-items:center;background:var(--card);padding:10px;border-radius:999px;gap:12px;border:1px solid rgba(255,255,255,0.03)}
+.search-box input{flex:1;background:transparent;border:0;color:#eaf4ff;outline:none}
+
+/* messages */
+.messages{display:flex;flex-direction:column;gap:12px;max-width:900px}
+.msg{display:flex;gap:12px;align-items:flex-start;max-width:100%}
+.msg.me{flex-direction:row-reverse}
+.bubble{padding:12px 14px;border-radius:12px;color:#e6eef5;line-height:1.4;border:1px solid rgba(255,255,255,0.02);max-width:72%;white-space:pre-wrap;word-break:break-word}
+.bubble.assistant{background:linear-gradient(180deg,#0f1720,#0b1116)}
+.bubble.me{background:linear-gradient(180deg,#09343d,#053239);}
+
+/* composer */
+.composer{border-top:1px solid rgba(255,255,255,0.02);padding:12px;display:flex;gap:10px;align-items:center;background:linear-gradient(180deg,transparent,rgba(255,255,255,0.01))}
+textarea#composer{flex:1;min-height:54px;max-height:220px;padding:10px;border-radius:10px;background:var(--input);border:1px solid rgba(255,255,255,0.02);color:#eaf4ff;resize:none;font-size:14px}
+.btn-send{background:var(--accent);border:none;padding:10px 14px;border-radius:8px;color:white;font-weight:600;cursor:pointer}
+
+/* small */
+.small{font-size:13px;color:var(--muted)}
+.tools{display:flex;gap:8px;align-items:center}
+
+/* responsive */
+@media (max-width:900px){
+  .sidebar{display:none}
+  .search-box{width:100%}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" role="navigation">
+    <div class="top">
+      <div class="logo">CG</div>
+      <div>
+        <div style="font-weight:700">ChatGPT</div>
+        <div class="small" style="margin-top:2px">Local • OpenAI API</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn" id="newChatBtn">➕ New chat</button>
+      <div class="search">
+        <input id="searchInput" placeholder="Search chats or messages..." />
+        <button class="btn" id="exportAllBtn" title="Export all chats">⇪</button>
+      </div>
+    </div>
+
+    <div class="nav" id="chatsList" role="list">
+      <!-- chat items -->
+    </div>
+
+    <div class="sidebar-footer">
+      <div style="display:flex;gap:8px;align-items:center;flex:1">
+        <div style="width:36px;height:36;border-radius:50%;background:#24303a;display:flex;align-items:center;justify-content:center">AH</div>
+        <div>
+          <div style="font-weight:600">abdul habib</div>
+          <div class="small">Free</div>
+        </div>
+      </div>
+      <div>
+        <button class="btn" id="settingsBtn">Settings</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="header">
+      <h1>ChatGPT — Full (OpenAI)</h1>
+      <div class="right">
+        <div class="small" id="status">Ready</div>
+        <div style="width:8px"></div>
+        <select id="modelSelect" title="Choose model">
+          <option value="gpt-4o-mini">gpt-4o-mini</option>
+          <option value="gpt-4o">gpt-4o</option>
+          <option value="gpt-4o-mini-preview">gpt-4o-mini-preview</option>
+        </select>
+        <button class="btn" id="clearAllBtn" title="Clear all chats">🗑</button>
+      </div>
+    </header>
+
+    <section class="workspace">
+      <div class="conversation" id="conversation">
+        <div class="placeholder" id="placeholder">
+          <div class="big">Ready when you are.</div>
+          <div class="search-box" role="search">
+            <div style="width:36px;height:36;border-radius:8px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center">💬</div>
+            <input id="quickInput" placeholder="Ask anything (press Enter)" />
+            <div style="width:36px;height:36;border-radius:8px;display:flex;align-items:center;justify-content:center">🎤</div>
+          </div>
+
+          <div style="margin-top:18px;max-width:760px">
+            <div class="small" style="margin-bottom:8px">Contoh:</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn suggestion">Buatkan caption Instagram 5 contoh</button>
+              <button class="btn suggestion">Ringkas artikel ini</button>
+              <button class="btn suggestion">Buat rencana 7 hari pemasaran</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="chatView" style="display:none;flex-direction:column;height:100%">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+            <div style="width:42px;height:42;border-radius:8px;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center">🤖</div>
+            <div>
+              <div id="chatTitle" style="font-weight:700">New Chat</div>
+              <div id="chatMeta" class="small">Local conversation</div>
+            </div>
+            <div style="margin-left:auto;display:flex;gap:8px">
+              <button class="btn" id="renameBtn">Rename</button>
+              <button class="btn" id="exportBtn">Export</button>
+              <button class="btn" id="deleteBtn">Delete</button>
+            </div>
+          </div>
+
+          <div class="messages" id="messages" style="flex:1;overflow:auto;padding-right:6px"></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="composer">
+      <textarea id="composer" placeholder="Tulis pesan... Tekan Enter untuk kirim (Shift+Enter untuk baris baru)"></textarea>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn-send" id="sendBtn">Kirim</button>
+        <button class="btn" id="importBtn">Import</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Settings modal (simple) -->
+<div id="modal" style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,0.5)">
+  <div style="background:#0b0b0c;padding:18px;border-radius:12px;width:420px;border:1px solid rgba(255,255,255,0.04)">
+    <h3 style="margin:0 0 8px 0">Settings</h3>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <label class="small">API Key</label>
+      <input id="apiKeyInput" placeholder="sk-..." style="width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#eaf4ff"/>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn" id="saveSettingsBtn">Save</button>
+        <button class="btn" id="closeModalBtn">Close</button>
+      </div>
+      <div class="small" style="color:var(--muted)">API Key will be stored in your browser localStorage (only this device).</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* -----------------------
+   Data + persistence
+   ----------------------- */
+const STORAGE_KEY = 'cg_full_chats_v1';
+const API_KEY_STORAGE = 'cg_full_api_key_v1';
+let chats = [];
+let activeChatId = null;
+
+function nowIso(){ return new Date().toISOString(); }
+function uid(prefix='id'){ return prefix + '_' + Math.random().toString(36).slice(2,9); }
+
+function saveAll(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(chats));
+}
+function loadAll(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) chats = JSON.parse(raw);
+    else {
+      chats = [
+        { id: uid('chat'), title:'Welcome', createdAt: nowIso(), messages:[
+          { role:'assistant', text:'Halo! Masukkan API Key lewat Settings ▶ API Key, lalu klik New chat untuk memulai.', time: nowIso()}
+        ]}
+      ];
+      saveAll();
+    }
+  }catch(e){ chats = []; }
+}
+function getApiKey(){ return localStorage.getItem(API_KEY_STORAGE) || ''; }
+function setApiKey(v){ localStorage.setItem(API_KEY_STORAGE, v || ''); }
+
+/* -----------------------
+   UI refs
+   ----------------------- */
+const chatsListEl = document.getElementById('chatsList');
+const newChatBtn = document.getElementById('newChatBtn');
+const searchInput = document.getElementById('searchInput');
+const placeholder = document.getElementById('placeholder');
+const chatView = document.getElementById('chatView');
+const messagesEl = document.getElementById('messages');
+const chatTitleEl = document.getElementById('chatTitle');
+const chatMetaEl = document.getElementById('chatMeta');
+const composerEl = document.getElementById('composer');
+const sendBtn = document.getElementById('sendBtn');
+const modelSelect = document.getElementById('modelSelect');
+const statusEl = document.getElementById('status');
+const quickInput = document.getElementById('quickInput');
+const suggestionBtns = document.querySelectorAll('.suggestion');
+const renameBtn = document.getElementById('renameBtn');
+const exportBtn = document.getElementById('exportBtn');
+const deleteBtn = document.getElementById('deleteBtn');
+const exportAllBtn = document.getElementById('exportAllBtn');
+const clearAllBtn = document.getElementById('clearAllBtn');
+const settingsBtn = document.getElementById('settingsBtn');
+const modal = document.getElementById('modal');
+const apiKeyInput = document.getElementById('apiKeyInput');
+const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+const closeModalBtn = document.getElementById('closeModalBtn');
+const importBtn = document.getElementById('importBtn');
+
+/* -----------------------
+   Render functions
+   ----------------------- */
+function renderChats(filter=''){
+  chatsListEl.innerHTML = '';
+  const list = chats.filter(c => c.title.toLowerCase().includes(filter.toLowerCase()) || (c.messages && c.messages.some(m=>m.text.toLowerCase().includes(filter.toLowerCase()))));
+  list.sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt));
+  list.forEach(c=>{
+    const el = document.createElement('div');
+    el.className = 'chat-item' + (c.id === activeChatId ? ' active' : '');
+    el.dataset.id = c.id;
+    el.innerHTML = `<div class="chat-icon">${(c.title||'C')[0].toUpperCase()}</div>
+      <div style="flex:1">
+        <div style="font-weight:600">${escapeHtml(c.title)}</div>
+        <div class="small" style="margin-top:6px;color:var(--muted)">${previewText(c)}</div>
+      </div>`;
+    el.addEventListener('click', ()=> openChat(c.id));
+    el.addEventListener('contextmenu', (e)=> { e.preventDefault(); if(confirm('Hapus percakapan "'+c.title+'"?')) { deleteChat(c.id); } });
+    chatsListEl.appendChild(el);
+  });
+}
+function escapeHtml(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function previewText(c){
+  const last = c.messages && c.messages.length ? c.messages[c.messages.length-1] : null;
+  if(!last) return 'No messages yet';
+  return (last.role === 'user' ? 'You: ' : 'Assistant: ') + (last.text.length>50 ? last.text.slice(0,50)+'...' : last.text);
+}
+
+function openChat(id){
+  activeChatId = id;
+  const c = chats.find(x=>x.id===id);
+  if(!c) return;
+  placeholder.style.display = 'none';
+  chatView.style.display = 'flex';
+  chatTitleEl.textContent = c.title || 'Chat';
+  chatMetaEl.textContent = 'Created: ' + new Date(c.createdAt).toLocaleString();
+  renderMessages();
+  saveAll();
+}
+
+function renderMessages(){
+  messagesEl.innerHTML = '';
+  const chat = chats.find(c=>c.id===activeChatId);
+  if(!chat) return;
+  chat.messages.forEach(m=>{
+    const item = document.createElement('div');
+    item.className = 'msg ' + (m.role === 'user' ? 'me' : '');
+    const icon = document.createElement('div');
+    icon.style.width='36px'; icon.style.height='36px'; icon.style.borderRadius='8px'; icon.style.background='rgba(255,255,255,0.03)';
+    icon.style.display='flex'; icon.style.alignItems='center'; icon.style.justifyContent='center';
+    icon.textContent = m.role === 'user' ? '🧑' : '🤖';
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble ' + (m.role === 'assistant' ? 'assistant' : 'me');
+    bubble.innerText = m.text;
+    item.appendChild(icon);
+    item.appendChild(bubble);
+    messagesEl.appendChild(item);
+  });
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+/* -----------------------
+   Actions
+   ----------------------- */
+function createChat(title='New chat'){
+  const chat = { id: uid('chat'), title, createdAt: nowIso(), messages: [] };
+  chats.push(chat);
+  saveAll();
+  renderChats(searchInput.value || '');
+  openChat(chat.id);
+}
+function deleteChat(id){
+  chats = chats.filter(c=>c.id!==id);
+  if(activeChatId === id) { activeChatId = chats.length ? chats[0].id : null; if(activeChatId) openChat(activeChatId); else { chatView.style.display='none'; placeholder.style.display='flex'; } }
+  saveAll(); renderChats(searchInput.value||'');
+}
+function renameChat(){
+  const c = chats.find(x=>x.id===activeChatId);
+  if(!c) return;
+  const newTitle = prompt('Rename chat', c.title);
+  if(newTitle!==null && newTitle.trim()!==''){ c.title = newTitle.trim(); saveAll(); renderChats(searchInput.value||''); chatTitleEl.textContent = c.title; }
+}
+function exportChat(){
+  const c = chats.find(x=>x.id===activeChatId);
+  if(!c) return alert('No chat selected');
+  const blob = new Blob([JSON.stringify(c, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = (c.title||'chat')+'.json'; a.click(); URL.revokeObjectURL(url);
+}
+function exportAll(){
+  const blob = new Blob([JSON.stringify(chats, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'chats_export.json'; a.click(); URL.revokeObjectURL(url);
+}
+
+/* -----------------------
+   Composer & sending
+   ----------------------- */
+async function sendCurrentMessage(text){
+  if(!text || !text.trim()) return;
+  const chat = chats.find(c=>c.id===activeChatId);
+  if(!chat){ createChat('Chat '+(chats.length+1)); } // create & open
+  const active = chats.find(c=>c.id===activeChatId) || chats[chats.length-1];
+  active.messages.push({ role:'user', text, time: nowIso() });
+  saveAll(); renderChats(searchInput.value||''); renderMessages();
+  composerEl.value = '';
+
+  // show typing indicator
+  const typingEl = document.createElement('div'); typingEl.className='msg';
+  typingEl.innerHTML = `<div style="width:36px;height:36;border-radius:8px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center">🤖</div><div class="bubble assistant">ChatGPT sedang mengetik...</div>`;
+  messagesEl.appendChild(typingEl); messagesEl.scrollTop = messagesEl.scrollHeight;
+
+  // call OpenAI
+  const apiKey = getApiKey();
+  if(!apiKey){ typingEl.remove(); alert('Masukkan API Key dulu lewat Settings → API Key'); return; }
+
+  statusEl.textContent = 'Calling API...';
+  try{
+    const model = modelSelect.value;
+    const payload = {
+      model,
+      messages: active.messages.map(m => ({ role: m.role, content: m.text }))
+    };
+    const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+      method:'POST',
+      headers: {
+        'Content-Type':'application/json',
+        'Authorization': 'Bearer ' + apiKey
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await resp.json();
+    typingEl.remove();
+
+    if(data.error){
+      const errMsg = `API Error: ${data.error.message || JSON.stringify(data.error)}`;
+      active.messages.push({ role:'assistant', text: errMsg, time: nowIso() });
+      saveAll(); renderChats(searchInput.value||''); renderMessages();
+      statusEl.textContent = 'Error';
+      return;
+    }
+
+    // Safely access choice text
+    const choice = data.choices && data.choices[0];
+    const content = choice && choice.message && choice.message.content ? choice.message.content : (choice && choice.text ? choice.text : null);
+
+    if(!content){
+      const fallback = '⚠ Response format unexpected. See console for details.';
+      active.messages.push({ role:'assistant', text: fallback, time: nowIso() });
+      console.error('OpenAI response:', data);
+      saveAll(); renderChats(searchInput.value||''); renderMessages();
+      statusEl.textContent = 'Done';
+      return;
+    }
+
+    active.messages.push({ role:'assistant', text: content, time: nowIso() });
+    saveAll(); renderChats(searchInput.value||''); renderMessages();
+    statusEl.textContent = 'Done';
+  }catch(e){
+    typingEl.remove();
+    const err = '⚠ Terjadi kesalahan: ' + (e.message || e);
+    const active = chats.find(c=>c.id===activeChatId) || chats[chats.length-1];
+    active.messages.push({ role:'assistant', text: err, time: nowIso() });
+    saveAll(); renderChats(searchInput.value||''); renderMessages();
+    statusEl.textContent = 'Error';
+    console.error(e);
+  }
+}
+
+/* -----------------------
+   Import (file)
+   ----------------------- */
+function importJsonFile(){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = evt => {
+      try{
+        const parsed = JSON.parse(evt.target.result);
+        // if array -> merge, if object -> single chat
+        if(Array.isArray(parsed)){
+          chats = chats.concat(parsed);
+        } else if(parsed && parsed.id){
+          chats.push(parsed);
+        } else {
+          alert('Format file tidak dikenali');
+          return;
+        }
+        saveAll();
+        renderChats();
+        alert('Import berhasil');
+      }catch(err){
+        alert('Gagal membaca file: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+/* -----------------------
+   UI wiring
+   ----------------------- */
+newChatBtn.addEventListener('click', ()=> createChat('New chat ' + (chats.length+1)));
+searchInput.addEventListener('input', (e)=> renderChats(e.target.value));
+sendBtn.addEventListener('click', ()=> {
+  if(!activeChatId) createChat('Chat ' + (chats.length+1));
+  sendCurrentMessage(composerEl.value);
+});
+composerEl.addEventListener('keydown', (e)=> {
+  if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); if(!activeChatId) createChat('Chat ' + (chats.length+1)); sendCurrentMessage(composerEl.value); }
+});
+quickInput.addEventListener('keydown', (e)=> { if(e.key==='Enter'){ e.preventDefault(); if(!activeChatId) createChat('Chat ' + (chats.length+1)); sendCurrentMessage(quickInput.value); quickInput.value=''; } });
+suggestionBtns.forEach(b=> b.addEventListener('click', ()=> { if(!activeChatId) createChat('Chat ' + (chats.length+1)); sendCurrentMessage(b.innerText); }));
+renameBtn.addEventListener('click', renameChat);
+exportBtn.addEventListener('click', exportChat);
+deleteBtn.addEventListener('click', ()=> { if(confirm('Delete this chat?')) deleteChat(activeChatId); });
+exportAllBtn.addEventListener('click', exportAll);
+clearAllBtn.addEventListener('click', ()=> { if(confirm('Clear all chats?')){ chats=[]; saveAll(); renderChats(); chatView.style.display='none'; placeholder.style.display='flex'; }});
+settingsBtn.addEventListener('click', ()=> { apiKeyInput.value = getApiKey(); modal.style.display='flex'; });
+closeModalBtn.addEventListener('click', ()=> modal.style.display='none');
+saveSettingsBtn.addEventListener('click', ()=> { setApiKey(apiKeyInput.value.trim()); modal.style.display='none'; alert('API Key disimpan di browser'); });
+importBtn.addEventListener('click', importJsonFile);
+
+/* -----------------------
+   Init
+   ----------------------- */
+loadAll();
+renderChats();
+if(chats.length>0){ openChat(chats[0].id); }
+else { placeholder.style.display='flex'; chatView.style.display='none'; }
+
+/* Autosave every 15s */
+setInterval(saveAll, 15000);
+</script>
+</body>
+</html>
